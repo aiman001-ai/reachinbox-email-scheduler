@@ -145,7 +145,11 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
       onSuccess();
       onClose();
     } catch (err: any) {
-      setErrorMessage(err?.response?.data?.error || err?.message || 'Failed to schedule emails. Please check your network.');
+      if (err?.code === 'ECONNABORTED' || err?.message?.includes('timeout')) {
+        setErrorMessage('Server took a little longer to wake up. Please click Schedule Emails again, it will process now.');
+      } else {
+        setErrorMessage(err?.response?.data?.error || err?.message || 'Failed to schedule emails. Please check your network.');
+      }
     } finally {
       setSubmitting(false);
     }
