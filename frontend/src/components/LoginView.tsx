@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { ShieldCheck, Mail, Zap } from 'lucide-react';
 
 export const LoginView: React.FC = () => {
-  const { loginWithGoogleSuccess } = useAuth();
+  const { loginWithGoogleSuccess, loginAsDemo } = useAuth();
 
   return (
     <div className="min-h-screen bg-[#0B0F17] flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 relative overflow-hidden">
@@ -28,7 +28,7 @@ export const LoginView: React.FC = () => {
           <div className="text-center space-y-1">
             <h2 className="text-lg font-semibold text-white">Sign In</h2>
             <p className="text-xs text-slate-400">
-              Continue to your outreach dashboard with Google
+              Continue to your outreach dashboard
             </p>
           </div>
 
@@ -42,6 +42,20 @@ export const LoginView: React.FC = () => {
               width="320"
             />
           </div>
+
+          <div className="relative flex items-center justify-center my-1">
+            <div className="w-full border-t border-slate-800"></div>
+            <span className="px-3 text-slate-500 text-[11px] bg-[#0F172A] absolute">or</span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => loginAsDemo()}
+            className="w-full py-2.5 px-4 bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 font-medium rounded-lg text-xs border border-slate-700/60 transition flex items-center justify-center gap-2 shadow-sm"
+          >
+            <Mail className="w-4 h-4 text-indigo-400" />
+            <span>Continue as Guest (Instant Access)</span>
+          </button>
 
           <div className="pt-4 border-t border-slate-800/80 space-y-2.5">
             <div className="flex items-center gap-2.5 text-xs text-slate-400">

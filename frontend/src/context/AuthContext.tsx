@@ -6,6 +6,7 @@ interface AuthContextType {
   user: UserProfile | null;
   isAuthenticated: boolean;
   loginWithGoogleSuccess: (credentialResponse: any) => Promise<void>;
+  loginAsDemo: (customEmail?: string, customName?: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -85,6 +86,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const loginAsDemo = async (customEmail = 'demo@reachinbox.ai', customName = 'Demo User') => {
+    let profile: UserProfile = {
+      id: 'demo-user-id',
+      email: customEmail,
+      name: customName,
+      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(customName)}&background=4F46E5&color=fff`,
+    };
+
+    try {
+      const syncRes = await api.syncUser(profile);
+      if (syncRes?.user?.id) {
+        profile = { ...profile, id: syncRes.user.id };
+      }
+    } catch (e) {
+      console.warn('Demo user local fallback:', e);
+    }
+
+    setUser(profile);
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(profile));
+  };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem(LOCAL_STORAGE_KEY);
@@ -96,6 +118,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         isAuthenticated: !!user,
         loginWithGoogleSuccess,
+        loginAsDemo,
         logout,
       }}
     >
