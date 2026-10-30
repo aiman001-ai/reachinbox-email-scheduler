@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { X, UploadCloud, FileText, CheckCircle2, Clock, AlertCircle, Zap, Calendar } from 'lucide-react';
+import { X, UploadCloud, FileText, CheckCircle2, Clock, AlertCircle, Zap, Calendar, Loader2 } from 'lucide-react';
 
 interface ComposeModalProps {
   isOpen: boolean;
@@ -133,6 +133,14 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
         delayBetweenSeconds,
         hourlyLimit,
       });
+
+      setSubject('');
+      setBody('');
+      setManualRecipients('');
+      setParsedRecipients([]);
+      setUploadedFileName(null);
+      setStartTime('');
+      setIsTimeConfirmed(false);
 
       onSuccess();
       onClose();
@@ -412,7 +420,16 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
                 disabled={submitting || uploading}
                 className="px-6 py-2.5 font-semibold text-white bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg shadow-md transition flex items-center gap-2 text-xs"
               >
-                {submitting ? 'Scheduling...' : totalDetected > 0 ? `Schedule (${totalDetected}) Emails` : 'Schedule Emails'}
+                {submitting ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Scheduling...</span>
+                  </>
+                ) : totalDetected > 0 ? (
+                  `Schedule (${totalDetected}) Emails`
+                ) : (
+                  'Schedule Emails'
+                )}
               </button>
             </div>
           </div>

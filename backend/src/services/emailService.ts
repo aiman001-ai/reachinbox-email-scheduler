@@ -1,5 +1,6 @@
 import { prisma } from '../config/db';
 import { emailQueue, EmailJobData } from '../queues/emailQueue';
+import { redisConnection } from '../config/redis';
 import { SearchService } from './searchService';
 import { SmtpService } from './smtpService';
 
@@ -55,6 +56,7 @@ export class EmailService {
     }
 
     const createdRecords = [];
+    let isRedisAvailable = redisConnection.status === 'ready';
 
     for (let index = 0; index < recipients.length; index++) {
       const recipient = recipients[index].trim();
@@ -91,19 +93,22 @@ export class EmailService {
       };
 
       let enqueuedToRedis = false;
-      try {
-        await Promise.race([
-          emailQueue.add('send-email', jobPayload, {
-            delay: delayMs,
-            jobId: emailRecord.id,
-          }),
-          new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Queue timeout')), 1000)
-          ),
-        ]);
-        enqueuedToRedis = true;
-      } catch (queueErr) {
-        enqueuedToRedis = false;
+      if (isRedisAvailable) {
+        try {
+          await Promise.race([
+            emailQueue.add('send-email', jobPayload, {
+              delay: delayMs,
+              jobId: emailRecord.id,
+            }),
+            new Promise((_, reject) =>
+              setTimeout(() => reject(new Error('Queue timeout')), 250)
+            ),
+          ]);
+          enqueuedToRedis = true;
+        } catch (queueErr) {
+          enqueuedToRedis = false;
+          isRedisAvailable = false;
+        }
       }
 
       if (!enqueuedToRedis) {
