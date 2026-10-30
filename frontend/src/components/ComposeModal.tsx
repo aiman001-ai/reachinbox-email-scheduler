@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { X, UploadCloud, FileText, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { X, UploadCloud, FileText, CheckCircle2, Clock, AlertCircle, Zap, Calendar } from 'lucide-react';
 
 interface ComposeModalProps {
   isOpen: boolean;
@@ -18,7 +18,9 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
   const [parsedRecipients, setParsedRecipients] = useState<string[]>([]);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
 
+  const [scheduleMode, setScheduleMode] = useState<'now' | 'later'>('now');
   const [startTime, setStartTime] = useState<string>('');
+  const [isTimeConfirmed, setIsTimeConfirmed] = useState(false);
   const [delayBetweenSeconds, setDelayBetweenSeconds] = useState<number>(2);
   const [hourlyLimit, setHourlyLimit] = useState<number>(200);
 
@@ -36,22 +38,39 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
 
   if (!isOpen) return null;
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setUploading(true);
     setErrorMessage(null);
+    setUploadedFileName(file.name);
 
-    try {
-      const data = await api.uploadLeadsFile(file);
-      setParsedRecipients(data.emails);
-      setUploadedFileName(file.name);
-    } catch (err) {
-      setErrorMessage((err as any)?.response?.data?.error || 'Failed to process leads file');
-    } finally {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const text = event.target?.result as string;
+        const matches = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g) || [];
+        const clean = Array.from(new Set(matches.map((m) => m.toLowerCase().trim())));
+
+        if (clean.length > 0) {
+          setParsedRecipients(clean);
+        } else {
+          setErrorMessage('No valid email addresses found in the selected file.');
+        }
+      } catch (err) {
+        console.error('File parsing error:', err);
+      } finally {
+        setUploading(false);
+      }
+    };
+
+    reader.onerror = () => {
+      setErrorMessage('Could not read the uploaded file.');
       setUploading(false);
-    }
+    };
+
+    reader.readAsText(file);
   };
 
   const getCombinedRecipients = (): string[] => {
@@ -66,6 +85,14 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
 
   const totalDetected = getCombinedRecipients().length;
 
+  const setQuickTime = (minutesFromNow: number) => {
+    const date = new Date(Date.now() + minutesFromNow * 60 * 1000);
+    const pad = (n: number) => (n < 10 ? '0' + n : n);
+    const formatted = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    setStartTime(formatted);
+    setIsTimeConfirmed(true);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
@@ -73,39 +100,44 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
     const recipients = getCombinedRecipients();
 
     if (!sender.trim()) {
-      setErrorMessage('Sender email is required');
+      setErrorMessage('Please enter a sender email address.');
       return;
     }
     if (!subject.trim()) {
-      setErrorMessage('Subject line is required');
+      setErrorMessage('Please enter an email subject line.');
       return;
     }
     if (!body.trim()) {
-      setErrorMessage('Email body content is required');
+      setErrorMessage('Please enter email body content.');
       return;
     }
     if (recipients.length === 0) {
-      setErrorMessage('Please add at least one valid recipient or upload a CSV file');
+      setErrorMessage('Please add at least one recipient email address or upload a CSV file.');
       return;
     }
 
     setSubmitting(true);
     try {
+      const effectiveStartTime =
+        scheduleMode === 'later' && startTime
+          ? new Date(startTime).toISOString()
+          : new Date().toISOString();
+
       await api.scheduleEmails({
         userId: user?.id,
-        sender,
+        sender: sender.trim(),
         recipients,
-        subject,
-        body,
-        startTime: startTime ? new Date(startTime).toISOString() : new Date().toISOString(),
+        subject: subject.trim(),
+        body: body.trim(),
+        startTime: effectiveStartTime,
         delayBetweenSeconds,
         hourlyLimit,
       });
 
       onSuccess();
       onClose();
-    } catch (err) {
-      setErrorMessage((err as any)?.response?.data?.error || 'Failed to schedule emails');
+    } catch (err: any) {
+      setErrorMessage(err?.response?.data?.error || err?.message || 'Failed to schedule emails. Please check your network.');
     } finally {
       setSubmitting(false);
     }
@@ -131,7 +163,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
           {errorMessage && (
             <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-300 flex items-center gap-2">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
-              <span>{errorMessage}</span>
+              <span className="font-medium">{errorMessage}</span>
             </div>
           )}
 
@@ -143,7 +175,6 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
               onChange={(e) => setSender(e.target.value)}
               placeholder="e.g. outreach@reachinbox.ai"
               className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
-              required
             />
           </div>
 
@@ -155,7 +186,6 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
               onChange={(e) => setSubject(e.target.value)}
               placeholder="e.g. Partnership opportunity"
               className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
-              required
             />
           </div>
 
@@ -167,17 +197,20 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
               onChange={(e) => setBody(e.target.value)}
               placeholder="Write your email content here..."
               className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 resize-y"
-              required
             />
           </div>
 
           <div className="border border-slate-800/80 rounded-xl p-4 bg-slate-950/40 space-y-3">
             <div className="flex items-center justify-between">
               <span className="font-semibold text-slate-200">Email Leads / Recipients</span>
-              {totalDetected > 0 && (
+              {totalDetected > 0 ? (
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  {totalDetected} valid recipient{totalDetected > 1 ? 's' : ''} detected
+                  {totalDetected} recipient{totalDetected > 1 ? 's' : ''} ready
+                </span>
+              ) : (
+                <span className="text-[11px] text-amber-400/90 font-medium">
+                  Add leads via CSV or type below
                 </span>
               )}
             </div>
@@ -205,7 +238,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
                 )}
               </div>
               <p className="text-[11px] text-slate-500 mt-0.5">
-                Automatically extracts and validates all email addresses
+                Automatically extracts all valid email addresses
               </p>
             </div>
 
@@ -223,21 +256,113 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-            <div>
-              <label className="block text-slate-300 font-medium mb-1 flex items-center gap-1">
+          <div className="p-4 bg-slate-950/60 border border-slate-800 rounded-xl space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-slate-200 font-medium flex items-center gap-1.5 text-xs">
                 <Clock className="w-3.5 h-3.5 text-indigo-400" />
-                <span>Start Time</span>
+                <span>When should emails send?</span>
               </label>
-              <input
-                type="datetime-local"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
-              />
-              <span className="text-[10px] text-slate-500 mt-0.5 block">Leave blank to dispatch immediately</span>
+
+              <div className="flex items-center gap-1 bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-[11px]">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setScheduleMode('now');
+                    setStartTime('');
+                    setIsTimeConfirmed(false);
+                  }}
+                  className={`px-3 py-1 rounded-md font-medium transition ${
+                    scheduleMode === 'now'
+                      ? 'bg-indigo-600 text-white shadow-sm'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <span className="flex items-center gap-1">
+                    <Zap className="w-3 h-3" />
+                    <span>Send Now</span>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setScheduleMode('later');
+                    if (!startTime) setQuickTime(5);
+                  }}
+                  className={`px-3 py-1 rounded-md font-medium transition ${
+                    scheduleMode === 'later'
+                      ? 'bg-indigo-600 text-white shadow-sm'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <span className="flex items-center gap-1">
+                    <Calendar className="w-3 h-3" />
+                    <span>Schedule Later</span>
+                  </span>
+                </button>
+              </div>
             </div>
 
+            {scheduleMode === 'now' ? (
+              <div className="p-2.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[11px] flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-indigo-400 flex-shrink-0" />
+                <span>Emails will begin dispatching immediately with your configured 2-second delay.</span>
+              </div>
+            ) : (
+              <div className="space-y-2.5 pt-1">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                  <input
+                    type="datetime-local"
+                    value={startTime}
+                    onChange={(e) => {
+                      setStartTime(e.target.value);
+                      setIsTimeConfirmed(false);
+                    }}
+                    className="flex-1 px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setIsTimeConfirmed(true)}
+                    className={`px-4 py-2 font-medium rounded-lg text-xs transition flex items-center justify-center gap-1.5 ${
+                      isTimeConfirmed
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm'
+                    }`}
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>{isTimeConfirmed ? 'OK (Confirmed)' : 'OK / Set Time'}</span>
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                  <span>Quick Presets:</span>
+                  <button
+                    type="button"
+                    onClick={() => setQuickTime(5)}
+                    className="px-2 py-0.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded border border-slate-800 transition"
+                  >
+                    +5 mins
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setQuickTime(15)}
+                    className="px-2 py-0.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded border border-slate-800 transition"
+                  >
+                    +15 mins
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setQuickTime(60)}
+                    className="px-2 py-0.5 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded border border-slate-800 transition"
+                  >
+                    +1 hour
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
             <div>
               <label className="block text-slate-300 font-medium mb-1">Delay Between Sends (sec)</label>
               <input
@@ -265,21 +390,31 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
             </div>
           </div>
 
-          <div className="pt-3 border-t border-slate-800/80 flex items-center justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={submitting || uploading}
-              className="px-5 py-2 font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow-md transition disabled:opacity-50 flex items-center gap-2"
-            >
-              {submitting ? 'Scheduling...' : `Schedule ${totalDetected > 0 ? `(${totalDetected})` : ''} Emails`}
-            </button>
+          <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between">
+            <span className="text-[11px] text-slate-400">
+              {totalDetected > 0 ? (
+                <span className="text-slate-300">Ready to schedule <strong>{totalDetected}</strong> email{totalDetected > 1 ? 's' : ''}</span>
+              ) : (
+                <span className="text-amber-400/90 font-medium">⚠️ Add at least 1 lead to enable</span>
+              )}
+            </span>
+
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={submitting || uploading}
+                className="px-6 py-2.5 font-semibold text-white bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg shadow-md transition flex items-center gap-2 text-xs"
+              >
+                {submitting ? 'Scheduling...' : totalDetected > 0 ? `Schedule (${totalDetected}) Emails` : 'Schedule Emails'}
+              </button>
+            </div>
           </div>
         </form>
       </div>
