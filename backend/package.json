@@ -1,7 +1,7 @@
 {
   "name": "reachinbox-email-scheduler-backend",
   "version": "1.0.0",
-  "description": "Production-grade distributed email scheduler built with Express, BullMQ, Redis, PostgreSQL, Ethereal SMTP, and Elasticsearch",
+  "description": "Email scheduler backend with BullMQ, Redis, and SQLite",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",

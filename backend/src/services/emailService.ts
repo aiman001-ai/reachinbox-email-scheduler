@@ -30,7 +30,6 @@ export class EmailService {
     const now = Date.now();
     const effectiveStart = isNaN(baseStart) || baseStart < now ? now : baseStart;
 
-    // Safely resolve userId against database to satisfy foreign key constraints
     let validUserId: string | null = null;
     if (userId) {
       const userById = await prisma.user.findUnique({ where: { id: userId } });

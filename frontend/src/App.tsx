@@ -118,12 +118,9 @@ export const App: React.FC = () => {
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Metric summary banner */}
         <StatsBar metrics={metrics} />
 
-        {/* Dashboard Navigation & Controls */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-6">
-          {/* Tabs */}
           <div className="flex items-center gap-2 p-1 bg-slate-900/80 border border-slate-800 rounded-xl">
             <button
               onClick={() => setActiveTab('scheduled')}
@@ -168,9 +165,7 @@ export const App: React.FC = () => {
             </button>
           </div>
 
-          {/* Search & Compose Action */}
           <div className="flex items-center gap-3">
-            {/* Elasticsearch Search Bar */}
             <div className="relative flex-1 sm:w-64">
               <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
@@ -182,7 +177,6 @@ export const App: React.FC = () => {
               />
             </div>
 
-            {/* Refresh */}
             <button
               onClick={() => {
                 fetchEmails();
@@ -194,7 +188,6 @@ export const App: React.FC = () => {
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             </button>
 
-            {/* Primary Compose Button */}
             <button
               onClick={() => setIsComposeOpen(true)}
               className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl shadow-md shadow-indigo-600/20 transition flex items-center gap-1.5 flex-shrink-0"
@@ -205,7 +198,6 @@ export const App: React.FC = () => {
           </div>
         </div>
 
-        {/* Tab Content Tables */}
         {activeTab === 'scheduled' ? (
           <ScheduledTable
             items={scheduledItems}
@@ -221,7 +213,6 @@ export const App: React.FC = () => {
         )}
       </main>
 
-      {/* Compose & Slack Modals */}
       <ComposeModal
         isOpen={isComposeOpen}
         onClose={() => setIsComposeOpen(false)}

@@ -114,11 +114,10 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-150">
       <div className="bg-[#0F172A] border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-        {/* Modal Header */}
         <div className="flex items-center justify-between p-5 sm:p-6 border-b border-slate-800/80 sticky top-0 bg-[#0F172A]/90 backdrop-blur-md z-10">
           <div>
             <h2 className="text-lg font-bold text-white tracking-tight">Compose & Schedule Sequence</h2>
-            <p className="text-xs text-slate-400">Queue persistent emails powered by BullMQ & Ethereal SMTP</p>
+            <p className="text-xs text-slate-400">Schedule cold email outreach campaigns</p>
           </div>
           <button
             onClick={onClose}
@@ -128,7 +127,6 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
           </button>
         </div>
 
-        {/* Modal Body */}
         <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4 text-xs">
           {errorMessage && (
             <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-300 flex items-center gap-2">
@@ -137,7 +135,6 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
             </div>
           )}
 
-          {/* Sender */}
           <div>
             <label className="block text-slate-300 font-medium mb-1">Sender Email</label>
             <input
@@ -150,20 +147,18 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
             />
           </div>
 
-          {/* Subject */}
           <div>
             <label className="block text-slate-300 font-medium mb-1">Subject</label>
             <input
               type="text"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-              placeholder="e.g. Transforming cold email outreach with AI"
+              placeholder="e.g. Partnership opportunity"
               className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
               required
             />
           </div>
 
-          {/* Body */}
           <div>
             <label className="block text-slate-300 font-medium mb-1">Email Body</label>
             <textarea
@@ -176,7 +171,6 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
             />
           </div>
 
-          {/* Lead Upload & Manual Input */}
           <div className="border border-slate-800/80 rounded-xl p-4 bg-slate-950/40 space-y-3">
             <div className="flex items-center justify-between">
               <span className="font-semibold text-slate-200">Email Leads / Recipients</span>
@@ -188,7 +182,6 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
               )}
             </div>
 
-            {/* CSV Dropzone */}
             <input
               type="file"
               ref={fileInputRef}
@@ -216,7 +209,6 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
               </p>
             </div>
 
-            {/* Manual Textarea */}
             <div>
               <label className="block text-[11px] text-slate-400 mb-1">
                 Or paste email addresses (comma or newline separated):
@@ -231,7 +223,6 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
             </div>
           </div>
 
-          {/* Scheduling & Throttling Parameters */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
             <div>
               <label className="block text-slate-300 font-medium mb-1 flex items-center gap-1">
@@ -274,7 +265,6 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
             </div>
           </div>
 
-          {/* Submit Action */}
           <div className="pt-3 border-t border-slate-800/80 flex items-center justify-end gap-3">
             <button
               type="button"
@@ -288,7 +278,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
               disabled={submitting || uploading}
               className="px-5 py-2 font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow-md transition disabled:opacity-50 flex items-center gap-2"
             >
-              {submitting ? 'Enqueuing in BullMQ...' : `Schedule ${totalDetected > 0 ? `(${totalDetected})` : ''} Emails`}
+              {submitting ? 'Scheduling...' : `Schedule ${totalDetected > 0 ? `(${totalDetected})` : ''} Emails`}
             </button>
           </div>
         </form>

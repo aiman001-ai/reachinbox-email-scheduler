@@ -82,7 +82,6 @@ export const SlackModal: React.FC<SlackModalProps> = ({ isOpen, onClose, status,
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-150">
       <div className="bg-[#0F172A] border border-slate-800 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
-        {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-slate-800 bg-[#0F172A]/90">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-[#4A154B] flex items-center justify-center text-white font-bold">
@@ -98,7 +97,6 @@ export const SlackModal: React.FC<SlackModalProps> = ({ isOpen, onClose, status,
           </button>
         </div>
 
-        {/* Content */}
         <div className="p-5 space-y-4 text-xs">
           {errorMessage && (
             <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-300 flex items-center gap-2">
@@ -127,7 +125,6 @@ export const SlackModal: React.FC<SlackModalProps> = ({ isOpen, onClose, status,
                 </p>
               </div>
 
-              {/* Action Buttons */}
               <div className="flex items-center gap-3">
                 <button
                   type="button"
@@ -154,7 +151,6 @@ export const SlackModal: React.FC<SlackModalProps> = ({ isOpen, onClose, status,
                 Connect your Slack workspace so your team is instantly notified when a sender reaches their hourly dispatch threshold.
               </p>
 
-              {/* Fast Webhook Connect Form */}
               <form onSubmit={handleConnectWebhook} className="space-y-3 p-4 bg-slate-900/60 border border-slate-800 rounded-xl">
                 <div className="font-semibold text-slate-200 flex items-center gap-1.5">
                   <LinkIcon className="w-3.5 h-3.5 text-indigo-400" />
@@ -193,7 +189,6 @@ export const SlackModal: React.FC<SlackModalProps> = ({ isOpen, onClose, status,
                 </button>
               </form>
 
-              {/* OAuth Link */}
               <div className="text-center pt-1">
                 <span className="text-[11px] text-slate-500">or if configured in environment: </span>
                 <button

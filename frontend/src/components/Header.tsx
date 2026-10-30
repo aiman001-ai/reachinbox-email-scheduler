@@ -14,7 +14,6 @@ export const Header: React.FC<HeaderProps> = ({ slackStatus, onOpenSlackModal })
   return (
     <header className="border-b border-slate-800/80 bg-[#0F172A]/70 backdrop-blur-md sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Brand */}
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-indigo-600 to-indigo-400 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">
             RI
@@ -30,9 +29,7 @@ export const Header: React.FC<HeaderProps> = ({ slackStatus, onOpenSlackModal })
           </div>
         </div>
 
-        {/* Right side controls */}
         <div className="flex items-center gap-3 sm:gap-4">
-          {/* BullMQ Dashboard Link */}
           <a
             href="http://localhost:4000/admin/queues"
             target="_blank"
@@ -43,7 +40,6 @@ export const Header: React.FC<HeaderProps> = ({ slackStatus, onOpenSlackModal })
             <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
           </a>
 
-          {/* Slack Status Button */}
           <button
             onClick={onOpenSlackModal}
             className={`inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-lg border transition ${
@@ -65,7 +61,6 @@ export const Header: React.FC<HeaderProps> = ({ slackStatus, onOpenSlackModal })
             )}
           </button>
 
-          {/* User Profile */}
           {user && (
             <div className="flex items-center gap-3 pl-3 border-l border-slate-800">
               <img
