@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Production build outputs
+dist/
+build/
+
+# Environment variables (Never push these to Git)
+.env
+.env.*
+*.env
+**/.env
+**/.env.*
+frontend/.env
+backend/.env
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Database & Cache
+dump.rdb
+*.db
+*.db-journal
+dev.db
+backend/prisma/dev.db
+backend/prisma/dev.db-journal
+
+# Binaries
+redis-bin/
+*.exe
+*.pdb
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
