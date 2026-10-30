@@ -81,20 +81,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           avatar: payload.picture,
         };
 
-        try {
-          const syncRes = await api.syncUser(profile);
-          if (syncRes?.user?.id) {
-            profile = {
-              ...profile,
-              id: syncRes.user.id,
-            };
-          }
-        } catch (e) {
-          console.error('Failed to sync user with database:', e);
-        }
-
+        // Instantly transition to dashboard without waiting for network sync
         setUser(profile);
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(profile));
+
+        // Sync with database asynchronously
+        api.syncUser(profile).then((syncRes) => {
+          if (syncRes?.user?.id && syncRes.user.id !== profile.id) {
+            const updated = { ...profile, id: syncRes.user.id };
+            setUser(updated);
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+          }
+        }).catch((err) => {
+          console.warn('Background sync warning:', err);
+        });
       }
     }
   };
