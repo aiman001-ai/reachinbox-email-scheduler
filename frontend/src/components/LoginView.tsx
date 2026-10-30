@@ -33,26 +33,11 @@ export const LoginView: React.FC = () => {
           </div>
 
           <div className="space-y-4">
-            <button
-              onClick={loginWithDemo}
-              className="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600 active:scale-[0.99] text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2 text-xs cursor-pointer border border-indigo-400/30"
-            >
-              <Zap className="w-4 h-4 text-amber-300" />
-              <span>Launch Dashboard as Aiman Ansari (Instant 1-Click)</span>
-              <ArrowRight className="w-4 h-4 ml-auto" />
-            </button>
-
-            <div className="relative flex py-1 items-center">
-              <div className="flex-grow border-t border-slate-800"></div>
-              <span className="flex-shrink mx-3 text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Or Sign In With Google</span>
-              <div className="flex-grow border-t border-slate-800"></div>
-            </div>
-
-            <div className="flex justify-center py-1">
+            <div className="flex justify-center py-2">
               <GoogleLogin
                 onSuccess={loginWithGoogleSuccess}
                 onError={() => {
-                  console.warn('Google Sign In blocked or failed. Auto-entering as Aiman Ansari demo.');
+                  console.warn('Google Sign In failed. Switching to demo session.');
                   loginWithDemo();
                 }}
                 theme="filled_black"
@@ -60,6 +45,16 @@ export const LoginView: React.FC = () => {
                 text="signin_with"
                 width="320"
               />
+            </div>
+
+            <div className="text-center pt-1">
+              <button
+                type="button"
+                onClick={loginWithDemo}
+                className="text-[11px] text-slate-500 hover:text-indigo-400 transition underline underline-offset-4 cursor-pointer"
+              >
+                Continue with Demo Workspace
+              </button>
             </div>
           </div>
 

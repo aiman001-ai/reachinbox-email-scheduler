@@ -4,6 +4,7 @@ import { SearchService } from '../services/searchService';
 import { RateLimitService } from '../services/rateLimitService';
 import { config } from '../config/env';
 import { emailQueue } from '../queues/emailQueue';
+import { redisConnection } from '../config/redis';
 import { prisma } from '../config/db';
 
 const EMAIL_REGEX = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
@@ -140,12 +141,33 @@ export class EmailController {
 
   public static async getStats(req: Request, res: Response): Promise<void> {
     try {
-      const [scheduledCount, sentCount, failedCount, queueCounts] = await Promise.all([
+      const [scheduledCount, sentCount, failedCount] = await Promise.all([
         prisma.emailJob.count({ where: { status: { in: ['SCHEDULED', 'DELAYED_RATE_LIMIT'] } } }),
         prisma.emailJob.count({ where: { status: 'SENT' } }),
         prisma.emailJob.count({ where: { status: 'FAILED' } }),
-        emailQueue.getJobCounts('delayed', 'waiting', 'active', 'completed', 'failed'),
       ]);
+
+      let queueCounts = {
+        delayed: scheduledCount,
+        waiting: 0,
+        active: 0,
+        completed: sentCount,
+        failed: failedCount,
+      };
+
+      if (redisConnection.status === 'ready') {
+        try {
+          const counts = await Promise.race([
+            emailQueue.getJobCounts('delayed', 'waiting', 'active', 'completed', 'failed'),
+            new Promise<any>((_, reject) => setTimeout(() => reject(new Error('Timeout')), 200)),
+          ]);
+          if (counts) {
+            queueCounts = counts;
+          }
+        } catch {
+          // Redis offline or slow, fallback to DB counts
+        }
+      }
 
       res.json({
         database: {
