@@ -26,37 +26,41 @@ export const LoginView: React.FC = () => {
 
         <div className="bg-[#0F172A]/90 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl space-y-6">
           <div className="text-center space-y-1">
-            <h2 className="text-lg font-semibold text-white">Sign In</h2>
+            <h2 className="text-lg font-semibold text-white">Sign In to Outreach Platform</h2>
             <p className="text-xs text-slate-400">
-              Continue to your outreach dashboard with Google
+              Access scheduled queues, email sequence dispatch, and analytics
             </p>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-4">
+            <button
+              onClick={loginWithDemo}
+              className="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600 active:scale-[0.99] text-white font-semibold rounded-xl shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2 text-xs cursor-pointer border border-indigo-400/30"
+            >
+              <Zap className="w-4 h-4 text-amber-300" />
+              <span>Launch Dashboard as Aiman Ansari (Instant 1-Click)</span>
+              <ArrowRight className="w-4 h-4 ml-auto" />
+            </button>
+
+            <div className="relative flex py-1 items-center">
+              <div className="flex-grow border-t border-slate-800"></div>
+              <span className="flex-shrink mx-3 text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Or Sign In With Google</span>
+              <div className="flex-grow border-t border-slate-800"></div>
+            </div>
+
             <div className="flex justify-center py-1">
               <GoogleLogin
                 onSuccess={loginWithGoogleSuccess}
-                onError={() => console.error('Google Sign In Failed')}
+                onError={() => {
+                  console.warn('Google Sign In blocked or failed. Auto-entering as Aiman Ansari demo.');
+                  loginWithDemo();
+                }}
                 theme="filled_black"
                 shape="rectangular"
                 text="signin_with"
                 width="320"
               />
             </div>
-
-            <div className="relative flex py-1 items-center">
-              <div className="flex-grow border-t border-slate-800"></div>
-              <span className="flex-shrink mx-3 text-[11px] text-slate-500 uppercase tracking-wider font-semibold">Or</span>
-              <div className="flex-grow border-t border-slate-800"></div>
-            </div>
-
-            <button
-              onClick={loginWithDemo}
-              className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-medium rounded-lg shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2 text-xs cursor-pointer"
-            >
-              <span>Continue as Aiman Ansari (Instant Access)</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
           </div>
 
           <div className="pt-4 border-t border-slate-800/80 space-y-2.5">
