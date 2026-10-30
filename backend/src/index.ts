@@ -53,15 +53,6 @@ const startServer = async () => {
     await connectDatabase();
     await initElasticsearch();
 
-    let worker: any = null;
-    try {
-      worker = createEmailWorker();
-      console.log(`[Worker] Email dispatcher worker started with concurrency ${config.worker.concurrency}`);
-      await EmailService.reconcilePendingJobs();
-    } catch (workerErr) {
-      console.warn('[Worker] Worker/Queue initialization deferred or offline:', (workerErr as Error).message);
-    }
-
     const server = app.listen(config.port, () => {
       console.log(`=======================================================`);
       console.log(`  ReachInbox Email Job Scheduler Backend`);
@@ -69,6 +60,17 @@ const startServer = async () => {
       console.log(`  BullMQ Dashboard:  http://localhost:${config.port}/admin/queues`);
       console.log(`=======================================================`);
     });
+
+    let worker: any = null;
+    setTimeout(async () => {
+      try {
+        worker = createEmailWorker();
+        console.log(`[Worker] Email dispatcher worker started with concurrency ${config.worker.concurrency}`);
+        await EmailService.reconcilePendingJobs();
+      } catch (workerErr) {
+        console.warn('[Worker] Worker/Queue initialization deferred or offline:', (workerErr as Error).message);
+      }
+    }, 100);
 
     const shutdown = async () => {
       console.log('\n[Server] Shutting down gracefully...');

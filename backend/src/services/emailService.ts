@@ -298,11 +298,27 @@ export class EmailService {
       },
     });
 
+    if (redisConnection.status !== 'ready') {
+      console.log(`[Reconciler] Redis is offline. Initializing direct timers for ${pendingEmails.length} pending jobs.`);
+      const now = Date.now();
+      for (const email of pendingEmails) {
+        const delayMs = Math.max(0, email.scheduledAt.getTime() - now);
+        setTimeout(() => {
+          EmailService.processDirectSend(email.id).catch(() => {});
+        }, delayMs);
+      }
+      return;
+    }
+
     let reEnqueuedCount = 0;
     const now = Date.now();
 
     for (const email of pendingEmails) {
-      const existingJob = await emailQueue.getJob(email.id);
+      try {
+        const existingJob = await Promise.race([
+          emailQueue.getJob(email.id),
+          new Promise<null>((resolve) => setTimeout(() => resolve(null), 200)),
+        ]);
 
       if (!existingJob) {
         const delayMs = Math.max(0, email.scheduledAt.getTime() - now);
@@ -332,7 +348,10 @@ export class EmailService {
 
         reEnqueuedCount++;
       }
+    } catch (err) {
+      // Ignore individual job re-enqueue errors
     }
+  }
 
     console.log(`[Reconciler] State restored. Re-enqueued ${reEnqueuedCount} missing jobs.`);
   }
