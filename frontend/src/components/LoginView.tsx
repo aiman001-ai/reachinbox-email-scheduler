@@ -1,19 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
 import { ShieldCheck, Mail, Zap } from 'lucide-react';
 
 export const LoginView: React.FC = () => {
-  const { loginWithGoogleSuccess, loginAsDemo } = useAuth();
-  const [emailInput, setEmailInput] = useState('');
-
-  const handleEmailSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (emailInput.trim()) {
-      const name = emailInput.trim().split('@')[0];
-      loginAsDemo(emailInput.trim(), name);
-    }
-  };
+  const { loginWithGoogleSuccess } = useAuth();
 
   return (
     <div className="min-h-screen bg-[#0B0F17] flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 relative overflow-hidden">
@@ -33,40 +24,15 @@ export const LoginView: React.FC = () => {
           </p>
         </div>
 
-        <div className="bg-[#0F172A]/90 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl space-y-5">
+        <div className="bg-[#0F172A]/90 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl space-y-6">
           <div className="text-center space-y-1">
             <h2 className="text-lg font-semibold text-white">Sign In</h2>
             <p className="text-xs text-slate-400">
-              Continue to your outreach dashboard
+              Continue to your outreach dashboard with Google
             </p>
           </div>
 
-          <form onSubmit={handleEmailSubmit} className="space-y-2.5">
-            <div>
-              <label className="block text-[11px] font-medium text-slate-300 mb-1">Email Address</label>
-              <input
-                type="email"
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
-                placeholder="aiman7417@gmail.com"
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg text-xs transition shadow-sm"
-            >
-              Sign In with Email
-            </button>
-          </form>
-
-          <div className="relative flex items-center justify-center my-1">
-            <div className="w-full border-t border-slate-800"></div>
-            <span className="px-3 text-slate-500 text-[11px] bg-[#0F172A] absolute">or continue with</span>
-          </div>
-
-          <div className="flex justify-center py-1">
+          <div className="flex justify-center py-2">
             <GoogleLogin
               onSuccess={loginWithGoogleSuccess}
               onError={() => console.error('Google Sign In Failed')}
@@ -75,16 +41,6 @@ export const LoginView: React.FC = () => {
               text="signin_with"
               width="320"
             />
-          </div>
-
-          <div className="text-center pt-1">
-            <button
-              type="button"
-              onClick={() => loginAsDemo()}
-              className="text-xs text-indigo-400 hover:text-indigo-300 font-medium hover:underline transition"
-            >
-              Continue as Guest (Demo Account) &rarr;
-            </button>
           </div>
 
           <div className="pt-4 border-t border-slate-800/80 space-y-2.5">
