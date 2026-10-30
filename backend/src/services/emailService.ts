@@ -1,6 +1,7 @@
 import { prisma } from '../config/db';
 import { emailQueue, EmailJobData } from '../queues/emailQueue';
 import { SearchService } from './searchService';
+import { SmtpService } from './smtpService';
 
 export interface ScheduleEmailInput {
   userId?: string;
@@ -89,10 +90,27 @@ export class EmailService {
         hourlyLimit,
       };
 
-      await emailQueue.add('send-email', jobPayload, {
-        delay: delayMs,
-        jobId: emailRecord.id,
-      });
+      let enqueuedToRedis = false;
+      try {
+        await Promise.race([
+          emailQueue.add('send-email', jobPayload, {
+            delay: delayMs,
+            jobId: emailRecord.id,
+          }),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Queue timeout')), 1000)
+          ),
+        ]);
+        enqueuedToRedis = true;
+      } catch (queueErr) {
+        enqueuedToRedis = false;
+      }
+
+      if (!enqueuedToRedis) {
+        setTimeout(() => {
+          EmailService.processDirectSend(emailRecord.id).catch(() => {});
+        }, delayMs);
+      }
 
       SearchService.indexEmail(emailRecord).catch(() => {});
 
@@ -223,6 +241,47 @@ export class EmailService {
       totalPages: Math.ceil(total / limit),
       items,
     };
+  }
+
+  public static async processDirectSend(jobRecordId: string) {
+    try {
+      const record = await prisma.emailJob.findUnique({ where: { id: jobRecordId } });
+      if (!record || record.status === 'SENT') return;
+
+      await prisma.emailJob.update({
+        where: { id: jobRecordId },
+        data: { status: 'PROCESSING' },
+      });
+
+      const sendResult = await SmtpService.sendMail({
+        sender: record.sender,
+        recipient: record.recipient,
+        subject: record.subject,
+        body: record.body,
+      });
+
+      const updated = await prisma.emailJob.update({
+        where: { id: jobRecordId },
+        data: {
+          status: 'SENT',
+          sentAt: new Date(),
+          etherealMessageId: sendResult.messageId,
+          etherealPreviewUrl: sendResult.previewUrl || null,
+        },
+      });
+
+      await SearchService.indexEmail(updated).catch(() => {});
+      console.log(`[Dispatch] Sent email to ${record.recipient}. Preview URL: ${sendResult.previewUrl || 'N/A'}`);
+    } catch (err) {
+      console.error(`[Dispatch] Failed to dispatch email ${jobRecordId}:`, (err as Error).message);
+      await prisma.emailJob.update({
+        where: { id: jobRecordId },
+        data: {
+          status: 'FAILED',
+          errorReason: (err as Error).message,
+        },
+      }).catch(() => {});
+    }
   }
 
   public static async reconcilePendingJobs() {

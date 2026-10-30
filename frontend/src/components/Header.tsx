@@ -31,7 +31,11 @@ export const Header: React.FC<HeaderProps> = ({ slackStatus, onOpenSlackModal })
 
         <div className="flex items-center gap-3 sm:gap-4">
           <a
-            href="http://localhost:4000/admin/queues"
+            href={
+              typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+                ? 'https://reachinbox-backend-91im.onrender.com/admin/queues'
+                : 'http://localhost:4000/admin/queues'
+            }
             target="_blank"
             rel="noreferrer"
             className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white bg-slate-800/60 hover:bg-slate-800 rounded-lg border border-slate-700/60 transition"
