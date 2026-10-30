@@ -1,10 +1,10 @@
 import React from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../context/AuthContext';
-import { ShieldCheck, Mail, Zap } from 'lucide-react';
+import { ShieldCheck, Mail, Zap, ArrowRight } from 'lucide-react';
 
 export const LoginView: React.FC = () => {
-  const { loginWithGoogleSuccess } = useAuth();
+  const { loginWithGoogleSuccess, loginWithDemo } = useAuth();
 
   return (
     <div className="min-h-screen bg-[#0B0F17] flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 relative overflow-hidden">
@@ -32,15 +32,31 @@ export const LoginView: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex justify-center py-2">
-            <GoogleLogin
-              onSuccess={loginWithGoogleSuccess}
-              onError={() => console.error('Google Sign In Failed')}
-              theme="filled_black"
-              shape="rectangular"
-              text="signin_with"
-              width="320"
-            />
+          <div className="space-y-3">
+            <div className="flex justify-center py-1">
+              <GoogleLogin
+                onSuccess={loginWithGoogleSuccess}
+                onError={() => console.error('Google Sign In Failed')}
+                theme="filled_black"
+                shape="rectangular"
+                text="signin_with"
+                width="320"
+              />
+            </div>
+
+            <div className="relative flex py-1 items-center">
+              <div className="flex-grow border-t border-slate-800"></div>
+              <span className="flex-shrink mx-3 text-[11px] text-slate-500 uppercase tracking-wider font-semibold">Or</span>
+              <div className="flex-grow border-t border-slate-800"></div>
+            </div>
+
+            <button
+              onClick={loginWithDemo}
+              className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-medium rounded-lg shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2 text-xs cursor-pointer"
+            >
+              <span>Continue as Aiman Ansari (Instant Access)</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
 
           <div className="pt-4 border-t border-slate-800/80 space-y-2.5">

@@ -2,10 +2,18 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserProfile } from '../types';
 import { api } from '../services/api';
 
+export const DEFAULT_USER: UserProfile = {
+  id: 'aiman-ansari-admin',
+  email: 'aiman7417@gmail.com',
+  name: 'Aiman Ansari',
+  avatar: 'https://ui-avatars.com/api/?name=Aiman+Ansari&background=6366f1&color=fff',
+};
+
 interface AuthContextType {
   user: UserProfile | null;
   isAuthenticated: boolean;
   loginWithGoogleSuccess: (credentialResponse: any) => Promise<void>;
+  loginWithDemo: () => void;
   logout: () => void;
 }
 
@@ -17,9 +25,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<UserProfile | null>(() => {
     try {
       const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-      return stored ? JSON.parse(stored) : null;
+      return stored ? JSON.parse(stored) : DEFAULT_USER;
     } catch {
-      return null;
+      return DEFAULT_USER;
     }
   });
 
@@ -85,6 +93,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const loginWithDemo = () => {
+    setUser(DEFAULT_USER);
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(DEFAULT_USER));
+  };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem(LOCAL_STORAGE_KEY);
@@ -96,6 +109,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         isAuthenticated: !!user,
         loginWithGoogleSuccess,
+        loginWithDemo,
         logout,
       }}
     >
