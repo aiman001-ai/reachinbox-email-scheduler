@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { prisma } from '../config/db';
 import { emailQueue, EmailJobData } from '../queues/emailQueue';
 import { redisConnection } from '../config/redis';
@@ -55,8 +56,8 @@ export class EmailService {
       }
     }
 
-    const createdRecords = [];
-    let isRedisAvailable = redisConnection.status === 'ready';
+    const createdRecords: any[] = [];
+    const jobsToInsert: any[] = [];
 
     for (let index = 0; index < recipients.length; index++) {
       const recipient = recipients[index].trim();
@@ -64,62 +65,74 @@ export class EmailService {
 
       const scheduledTimestamp = effectiveStart + index * delayBetweenSeconds * 1000;
       const scheduledAt = new Date(scheduledTimestamp);
+      const id = crypto.randomUUID();
 
-      const emailRecord = await prisma.emailJob.create({
-        data: {
-          userId: validUserId,
-          sender,
-          recipient,
-          subject,
-          body,
-          status: 'SCHEDULED',
-          scheduledAt,
-          delayBetweenSeconds,
-          hourlyLimit,
-        },
-      });
-
-      const delayMs = Math.max(0, scheduledAt.getTime() - Date.now());
-
-      const jobPayload: EmailJobData = {
-        jobRecordId: emailRecord.id,
-        userId: validUserId || undefined,
+      const record = {
+        id,
+        userId: validUserId,
         sender,
         recipient,
         subject,
         body,
+        status: 'SCHEDULED',
+        scheduledAt,
         delayBetweenSeconds,
         hourlyLimit,
       };
 
-      let enqueuedToRedis = false;
-      if (isRedisAvailable) {
-        try {
-          await Promise.race([
-            emailQueue.add('send-email', jobPayload, {
-              delay: delayMs,
-              jobId: emailRecord.id,
-            }),
-            new Promise((_, reject) =>
-              setTimeout(() => reject(new Error('Queue timeout')), 250)
-            ),
-          ]);
-          enqueuedToRedis = true;
-        } catch (queueErr) {
-          enqueuedToRedis = false;
-          isRedisAvailable = false;
-        }
-      }
+      jobsToInsert.push(record);
+      createdRecords.push(record);
+    }
 
-      if (!enqueuedToRedis) {
+    if (jobsToInsert.length === 0) {
+      return {
+        scheduledCount: 0,
+        jobs: [],
+      };
+    }
+
+    // 1. Single Bulk Insert into SQLite: Takes ~15ms for the entire batch
+    await prisma.emailJob.createMany({
+      data: jobsToInsert,
+    });
+
+    // 2. Non-blocking dispatch enqueuing
+    const isRedisAvailable = redisConnection.status === 'ready';
+
+    for (const record of createdRecords) {
+      const delayMs = Math.max(0, record.scheduledAt.getTime() - now);
+
+      if (isRedisAvailable) {
+        emailQueue
+          .add(
+            'send-email',
+            {
+              jobRecordId: record.id,
+              userId: validUserId || undefined,
+              sender: record.sender,
+              recipient: record.recipient,
+              subject: record.subject,
+              body: record.body,
+              delayBetweenSeconds: record.delayBetweenSeconds,
+              hourlyLimit: record.hourlyLimit,
+            },
+            {
+              delay: delayMs,
+              jobId: record.id,
+            }
+          )
+          .catch(() => {
+            setTimeout(() => {
+              EmailService.processDirectSend(record.id).catch(() => {});
+            }, delayMs);
+          });
+      } else {
         setTimeout(() => {
-          EmailService.processDirectSend(emailRecord.id).catch(() => {});
+          EmailService.processDirectSend(record.id).catch(() => {});
         }, delayMs);
       }
 
-      SearchService.indexEmail(emailRecord).catch(() => {});
-
-      createdRecords.push(emailRecord);
+      SearchService.indexEmail(record as any).catch(() => {});
     }
 
     return {
