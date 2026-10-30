@@ -53,10 +53,14 @@ const startServer = async () => {
     await connectDatabase();
     await initElasticsearch();
 
-    const worker = createEmailWorker();
-    console.log(`[Worker] Email dispatcher worker started with concurrency ${config.worker.concurrency}`);
-
-    await EmailService.reconcilePendingJobs();
+    let worker: any = null;
+    try {
+      worker = createEmailWorker();
+      console.log(`[Worker] Email dispatcher worker started with concurrency ${config.worker.concurrency}`);
+      await EmailService.reconcilePendingJobs();
+    } catch (workerErr) {
+      console.warn('[Worker] Worker/Queue initialization deferred or offline:', (workerErr as Error).message);
+    }
 
     const server = app.listen(config.port, () => {
       console.log(`=======================================================`);

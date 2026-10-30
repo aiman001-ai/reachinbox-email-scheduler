@@ -6,9 +6,10 @@ services:
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
-    envVars:
-      - key: VITE_API_BASE_URL
-        value: https://reachinbox-backend.onrender.com/api
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
 
   # Backend Web Service
   - type: web
@@ -16,7 +17,7 @@ services:
     runtime: node
     rootDir: backend
     plan: free
-    buildCommand: npm install && npm run prisma:generate && npm run build
+    buildCommand: npm install && npx prisma generate && npx prisma db push && npm run build
     startCommand: npm start
     envVars:
       - key: NODE_ENV
