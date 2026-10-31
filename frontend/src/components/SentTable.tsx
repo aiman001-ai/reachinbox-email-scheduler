@@ -1,6 +1,6 @@
 import React from 'react';
 import { EmailJob } from '../types';
-import { CheckCircle2, XCircle, ExternalLink, Send, Mail } from 'lucide-react';
+import { CheckCircle2, XCircle, ExternalLink, Send, Mail, Clock } from 'lucide-react';
 
 interface SentTableProps {
   items: EmailJob[];
@@ -11,26 +11,41 @@ interface SentTableProps {
 export const SentTable: React.FC<SentTableProps> = ({ items, loading, onComposeClick }) => {
   if (loading) {
     return (
-      <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-8 space-y-4">
-        {[1, 2, 3, 4].map((n) => (
-          <div key={n} className="animate-pulse flex items-center justify-between gap-4 py-2 border-b border-slate-800/60 last:border-0">
-            <div className="h-4 bg-slate-800 rounded w-1/4"></div>
-            <div className="h-4 bg-slate-800 rounded w-1/3"></div>
-            <div className="h-4 bg-slate-800 rounded w-1/6"></div>
-            <div className="h-6 bg-slate-800 rounded w-20"></div>
-          </div>
-        ))}
+      <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-4 sm:p-8 space-y-3 sm:space-y-4">
+        <div className="md:hidden space-y-3">
+          {[1, 2, 3].map((n) => (
+            <div key={n} className="animate-pulse bg-slate-900/60 border border-slate-800/80 rounded-xl p-4 space-y-2.5">
+              <div className="flex justify-between items-center">
+                <div className="h-4 bg-slate-800 rounded w-1/2"></div>
+                <div className="h-5 bg-slate-800 rounded w-16"></div>
+              </div>
+              <div className="h-3.5 bg-slate-800/80 rounded w-3/4"></div>
+              <div className="h-3 bg-slate-800/60 rounded w-1/3"></div>
+            </div>
+          ))}
+        </div>
+
+        <div className="hidden md:block space-y-4">
+          {[1, 2, 3, 4].map((n) => (
+            <div key={n} className="animate-pulse flex items-center justify-between gap-4 py-2 border-b border-slate-800/60 last:border-0">
+              <div className="h-4 bg-slate-800 rounded w-1/4"></div>
+              <div className="h-4 bg-slate-800 rounded w-1/3"></div>
+              <div className="h-4 bg-slate-800 rounded w-1/6"></div>
+              <div className="h-6 bg-slate-800 rounded w-20"></div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
   if (items.length === 0) {
     return (
-      <div className="bg-slate-900/40 border border-slate-800/80 rounded-xl p-12 text-center">
+      <div className="bg-slate-900/40 border border-slate-800/80 rounded-xl p-8 sm:p-12 text-center">
         <div className="w-12 h-12 rounded-full bg-slate-800/80 border border-slate-700/80 flex items-center justify-center mx-auto mb-4 text-slate-400">
           <Send className="w-6 h-6" />
         </div>
-        <h3 className="text-base font-semibold text-slate-200">No sent emails recorded yet</h3>
+        <h3 className="text-sm sm:text-base font-semibold text-slate-200">No sent emails recorded yet</h3>
         <p className="text-xs text-slate-400 max-w-sm mx-auto mt-1 mb-5">
           Dispatched emails processed by the BullMQ worker will be listed here along with Ethereal preview URLs.
         </p>
@@ -46,7 +61,64 @@ export const SentTable: React.FC<SentTableProps> = ({ items, loading, onComposeC
 
   return (
     <div className="bg-slate-900/60 border border-slate-800/80 rounded-xl overflow-hidden shadow-sm">
-      <div className="overflow-x-auto">
+      {/* Mobile Card List */}
+      <div className="md:hidden divide-y divide-slate-800/60">
+        {items.map((job) => {
+          const sentDate = job.sentAt ? new Date(job.sentAt) : new Date(job.updatedAt);
+          const isSent = job.status === 'SENT';
+
+          return (
+            <div key={job.id} className="p-3.5 sm:p-4 space-y-2 hover:bg-slate-800/20 transition">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <Mail className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                  <span className="font-semibold text-slate-200 text-xs truncate">{job.recipient}</span>
+                </div>
+                {isSent ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex-shrink-0">
+                    <CheckCircle2 className="w-3 h-3" />
+                    Sent
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-500/10 text-red-400 border border-red-500/30 flex-shrink-0">
+                    <XCircle className="w-3 h-3" />
+                    Failed
+                  </span>
+                )}
+              </div>
+
+              <div>
+                <div className="text-xs font-medium text-slate-200 truncate">{job.subject}</div>
+                <div className="text-[11px] text-slate-400 line-clamp-1 mt-0.5">{job.body}</div>
+              </div>
+
+              <div className="flex items-center justify-between text-[10px] sm:text-[11px] text-slate-400 pt-1.5 border-t border-slate-800/50">
+                <span className="font-mono text-slate-300 flex items-center gap-1">
+                  <Clock className="w-3 h-3 text-slate-500" />
+                  {sentDate.toLocaleDateString()} {sentDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
+
+                {job.etherealPreviewUrl ? (
+                  <a
+                    href={job.etherealPreviewUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 rounded border border-indigo-500/30 transition"
+                  >
+                    <span>View Email</span>
+                    <ExternalLink className="w-2.5 h-2.5" />
+                  </a>
+                ) : (
+                  <span className="text-slate-500 text-[10px]">No link</span>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Desktop Table */}
+      <div className="hidden md:block overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead className="bg-slate-800/50 text-slate-400 font-medium uppercase tracking-wider text-[11px] border-b border-slate-800">
             <tr>

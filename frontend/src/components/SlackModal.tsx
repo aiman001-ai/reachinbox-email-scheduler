@@ -80,24 +80,24 @@ export const SlackModal: React.FC<SlackModalProps> = ({ isOpen, onClose, status,
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-150">
-      <div className="bg-[#0F172A] border border-slate-800 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
-        <div className="flex items-center justify-between p-5 border-b border-slate-800 bg-[#0F172A]/90">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#4A154B] flex items-center justify-center text-white font-bold">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-150">
+      <div className="bg-[#0F172A] border border-slate-800 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden max-h-[92vh] flex flex-col">
+        <div className="flex items-center justify-between p-4 sm:p-5 border-b border-slate-800 bg-[#0F172A]/90">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-[#4A154B] flex items-center justify-center text-white font-bold flex-shrink-0">
               <Hash className="w-4 h-4" />
             </div>
-            <div>
-              <h2 className="text-base font-bold text-white tracking-tight">Slack Rate Limit Notifications</h2>
-              <p className="text-[11px] text-slate-400">Live webhook alerts when sender hourly limits trigger</p>
+            <div className="min-w-0">
+              <h2 className="text-sm sm:text-base font-bold text-white tracking-tight truncate">Slack Rate Limit Alerts</h2>
+              <p className="text-[10px] sm:text-[11px] text-slate-400 truncate">Live alerts when hourly limits trigger</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-white rounded-lg transition">
+          <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-white rounded-lg transition flex-shrink-0">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-5 space-y-4 text-xs">
+        <div className="p-4 sm:p-5 space-y-3.5 sm:space-y-4 text-xs overflow-y-auto flex-1">
           {errorMessage && (
             <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-300 flex items-center gap-2">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
@@ -114,7 +114,7 @@ export const SlackModal: React.FC<SlackModalProps> = ({ isOpen, onClose, status,
 
           {status?.connected ? (
             <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300">
+              <div className="p-3.5 sm:p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300">
                 <div className="flex items-center gap-2 font-semibold text-sm">
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Slack Integration Active</span>
@@ -125,7 +125,7 @@ export const SlackModal: React.FC<SlackModalProps> = ({ isOpen, onClose, status,
                 </p>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
                 <button
                   type="button"
                   onClick={handleTestAlert}
@@ -139,7 +139,7 @@ export const SlackModal: React.FC<SlackModalProps> = ({ isOpen, onClose, status,
                   type="button"
                   onClick={handleDisconnect}
                   disabled={loading}
-                  className="py-2 px-3 bg-slate-800 hover:bg-red-500/20 text-slate-300 hover:text-red-400 font-medium rounded-lg border border-slate-700 transition"
+                  className="py-2 px-3 bg-slate-800 hover:bg-red-500/20 text-slate-300 hover:text-red-400 font-medium rounded-lg border border-slate-700 transition text-center"
                 >
                   Disconnect
                 </button>
@@ -151,10 +151,10 @@ export const SlackModal: React.FC<SlackModalProps> = ({ isOpen, onClose, status,
                 Connect your Slack workspace so your team is instantly notified when a sender reaches their hourly dispatch threshold.
               </p>
 
-              <form onSubmit={handleConnectWebhook} className="space-y-3 p-4 bg-slate-900/60 border border-slate-800 rounded-xl">
+              <form onSubmit={handleConnectWebhook} className="space-y-3 p-3.5 sm:p-4 bg-slate-900/60 border border-slate-800 rounded-xl">
                 <div className="font-semibold text-slate-200 flex items-center gap-1.5">
                   <LinkIcon className="w-3.5 h-3.5 text-indigo-400" />
-                  <span>Connect via Incoming Webhook (Instant)</span>
+                  <span>Connect via Webhook</span>
                 </div>
 
                 <div>
@@ -164,7 +164,7 @@ export const SlackModal: React.FC<SlackModalProps> = ({ isOpen, onClose, status,
                     value={webhookUrl}
                     onChange={(e) => setWebhookUrl(e.target.value)}
                     placeholder="https://hooks.slack.com/services/..."
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-slate-200 font-mono text-[11px] focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-slate-200 font-mono text-sm sm:text-[11px] focus:outline-none focus:ring-1 focus:ring-indigo-500"
                     required
                   />
                 </div>
@@ -176,7 +176,7 @@ export const SlackModal: React.FC<SlackModalProps> = ({ isOpen, onClose, status,
                     value={channel}
                     onChange={(e) => setChannel(e.target.value)}
                     placeholder="#email-alerts"
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-slate-200 font-mono text-[11px] focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-slate-200 font-mono text-sm sm:text-[11px] focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                 </div>
 

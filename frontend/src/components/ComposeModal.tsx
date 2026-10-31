@@ -156,12 +156,12 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-150">
-      <div className="bg-[#0F172A] border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-        <div className="flex items-center justify-between p-5 sm:p-6 border-b border-slate-800/80 sticky top-0 bg-[#0F172A]/90 backdrop-blur-md z-10">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2.5 sm:p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-150">
+      <div className="bg-[#0F172A] border border-slate-800 rounded-2xl w-full max-w-2xl max-h-[92vh] sm:max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-800/80 sticky top-0 bg-[#0F172A]/95 backdrop-blur-md z-10">
           <div>
-            <h2 className="text-lg font-bold text-white tracking-tight">Compose & Schedule Sequence</h2>
-            <p className="text-xs text-slate-400">Schedule cold email outreach campaigns</p>
+            <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">Compose & Schedule Sequence</h2>
+            <p className="text-[11px] sm:text-xs text-slate-400">Schedule cold email outreach campaigns</p>
           </div>
           <button
             onClick={onClose}
@@ -171,7 +171,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4 text-xs">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-3.5 sm:space-y-4 text-xs">
           {errorMessage && (
             <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-300 flex items-center gap-2">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
@@ -186,7 +186,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
               value={sender}
               onChange={(e) => setSender(e.target.value)}
               placeholder="e.g. outreach@reachinbox.ai"
-              className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+              className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-slate-200 text-sm sm:text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
             />
           </div>
 
@@ -197,7 +197,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="e.g. Partnership opportunity"
-              className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+              className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-slate-200 text-sm sm:text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
             />
           </div>
 
@@ -208,15 +208,15 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
               value={body}
               onChange={(e) => setBody(e.target.value)}
               placeholder="Write your email content here..."
-              className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 resize-y"
+              className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-slate-200 text-sm sm:text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/50 resize-y"
             />
           </div>
 
-          <div className="border border-slate-800/80 rounded-xl p-4 bg-slate-950/40 space-y-3">
-            <div className="flex items-center justify-between">
+          <div className="border border-slate-800/80 rounded-xl p-3.5 sm:p-4 bg-slate-950/40 space-y-3">
+            <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-1">
               <span className="font-semibold text-slate-200">Email Leads / Recipients</span>
               {totalDetected > 0 ? (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 self-start xs:self-auto">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   {totalDetected} recipient{totalDetected > 1 ? 's' : ''} ready
                 </span>
@@ -236,20 +236,20 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
             />
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-slate-700 hover:border-indigo-500/60 rounded-xl p-4 text-center cursor-pointer transition bg-slate-900/30 hover:bg-indigo-500/5"
+              className="border-2 border-dashed border-slate-700 hover:border-indigo-500/60 rounded-xl p-3.5 sm:p-4 text-center cursor-pointer transition bg-slate-900/30 hover:bg-indigo-500/5"
             >
               <UploadCloud className="w-6 h-6 text-indigo-400 mx-auto mb-1" />
-              <div className="text-slate-300 font-medium">
+              <div className="text-slate-300 font-medium text-xs sm:text-sm">
                 {uploadedFileName ? (
-                  <span className="text-emerald-400 font-mono text-[11px] flex items-center justify-center gap-1">
-                    <FileText className="w-3.5 h-3.5" />
-                    {uploadedFileName} ({parsedRecipients.length} leads loaded)
+                  <span className="text-emerald-400 font-mono text-[11px] flex items-center justify-center gap-1 truncate">
+                    <FileText className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span className="truncate">{uploadedFileName} ({parsedRecipients.length} leads)</span>
                   </span>
                 ) : (
                   'Click to upload CSV or TXT lead list'
                 )}
               </div>
-              <p className="text-[11px] text-slate-500 mt-0.5">
+              <p className="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">
                 Automatically extracts all valid email addresses
               </p>
             </div>
@@ -263,19 +263,19 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
                 value={manualRecipients}
                 onChange={(e) => setManualRecipients(e.target.value)}
                 placeholder="lead1@company.com, lead2@startup.io..."
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-slate-200 font-mono text-[11px] focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-slate-200 font-mono text-xs sm:text-[11px] focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             </div>
           </div>
 
-          <div className="p-4 bg-slate-950/60 border border-slate-800 rounded-xl space-y-3">
-            <div className="flex items-center justify-between">
+          <div className="p-3.5 sm:p-4 bg-slate-950/60 border border-slate-800 rounded-xl space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <label className="text-slate-200 font-medium flex items-center gap-1.5 text-xs">
                 <Clock className="w-3.5 h-3.5 text-indigo-400" />
                 <span>When should emails send?</span>
               </label>
 
-              <div className="flex items-center gap-1 bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-[11px]">
+              <div className="grid grid-cols-2 sm:flex sm:items-center gap-1 bg-slate-900 p-0.5 rounded-lg border border-slate-800 text-[11px]">
                 <button
                   type="button"
                   onClick={() => {
@@ -283,16 +283,14 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
                     setStartTime('');
                     setIsTimeConfirmed(false);
                   }}
-                  className={`px-3 py-1 rounded-md font-medium transition ${
+                  className={`px-3 py-1.5 sm:py-1 rounded-md font-medium transition flex items-center justify-center gap-1 ${
                     scheduleMode === 'now'
                       ? 'bg-indigo-600 text-white shadow-sm'
                       : 'text-slate-400 hover:text-slate-200'
                   }`}
                 >
-                  <span className="flex items-center gap-1">
-                    <Zap className="w-3 h-3" />
-                    <span>Send Now</span>
-                  </span>
+                  <Zap className="w-3 h-3 flex-shrink-0" />
+                  <span>Send Now</span>
                 </button>
 
                 <button
@@ -301,16 +299,14 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
                     setScheduleMode('later');
                     if (!startTime) setQuickTime(5);
                   }}
-                  className={`px-3 py-1 rounded-md font-medium transition ${
+                  className={`px-3 py-1.5 sm:py-1 rounded-md font-medium transition flex items-center justify-center gap-1 ${
                     scheduleMode === 'later'
                       ? 'bg-indigo-600 text-white shadow-sm'
                       : 'text-slate-400 hover:text-slate-200'
                   }`}
                 >
-                  <span className="flex items-center gap-1">
-                    <Calendar className="w-3 h-3" />
-                    <span>Schedule Later</span>
-                  </span>
+                  <Calendar className="w-3 h-3 flex-shrink-0" />
+                  <span>Schedule Later</span>
                 </button>
               </div>
             </div>
@@ -330,7 +326,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
                       setStartTime(e.target.value);
                       setIsTimeConfirmed(false);
                     }}
-                    className="flex-1 px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="flex-1 px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-slate-200 text-sm sm:text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                   <button
                     type="button"
@@ -346,8 +342,8 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
                   </button>
                 </div>
 
-                <div className="flex items-center gap-2 text-[11px] text-slate-400">
-                  <span>Quick Presets:</span>
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-[11px] text-slate-400">
+                  <span className="w-full xs:w-auto">Quick Presets:</span>
                   <button
                     type="button"
                     onClick={() => setQuickTime(5)}
@@ -383,7 +379,7 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
                 max={60}
                 value={delayBetweenSeconds}
                 onChange={(e) => setDelayBetweenSeconds(Number(e.target.value))}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-slate-200 text-sm sm:text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
               />
               <span className="text-[10px] text-slate-500 mt-0.5 block">Prevents SMTP provider throttling</span>
             </div>
@@ -396,14 +392,14 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
                 max={5000}
                 value={hourlyLimit}
                 onChange={(e) => setHourlyLimit(Number(e.target.value))}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                className="w-full px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-lg text-slate-200 text-sm sm:text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
               />
               <span className="text-[10px] text-slate-500 mt-0.5 block">Exceeding shifts jobs to next hour</span>
             </div>
           </div>
 
-          <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between">
-            <span className="text-[11px] text-slate-400">
+          <div className="pt-4 border-t border-slate-800/80 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            <span className="text-[11px] text-slate-400 text-center sm:text-left">
               {totalDetected > 0 ? (
                 <span className="text-slate-300">Ready to schedule <strong>{totalDetected}</strong> email{totalDetected > 1 ? 's' : ''}</span>
               ) : (
@@ -411,18 +407,18 @@ export const ComposeModal: React.FC<ComposeModalProps> = ({ isOpen, onClose, onS
               )}
             </span>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition"
+                className="flex-1 sm:flex-initial px-4 py-2 font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition text-center"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={submitting || uploading}
-                className="px-6 py-2.5 font-semibold text-white bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg shadow-md transition flex items-center gap-2 text-xs"
+                className="flex-1 sm:flex-initial px-5 sm:px-6 py-2.5 font-semibold text-white bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg shadow-md transition flex items-center justify-center gap-2 text-xs"
               >
                 {submitting ? (
                   <>

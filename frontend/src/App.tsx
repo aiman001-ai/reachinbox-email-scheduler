@@ -117,23 +117,23 @@ export const App: React.FC = () => {
         onOpenSlackModal={() => setIsSlackOpen(true)}
       />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
         <StatsBar metrics={metrics} />
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 mb-6">
-          <div className="flex items-center gap-2 p-1 bg-slate-900/80 border border-slate-800 rounded-xl">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4 mb-5 sm:mb-6">
+          <div className="grid grid-cols-2 sm:flex sm:items-center gap-1 p-1 bg-slate-900/80 border border-slate-800 rounded-xl">
             <button
               onClick={() => setActiveTab('scheduled')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition ${
+              className={`flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs font-semibold transition ${
                 activeTab === 'scheduled'
                   ? 'bg-indigo-600 text-white shadow-sm'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
               }`}
             >
-              <Calendar className="w-3.5 h-3.5" />
-              <span>Scheduled Emails</span>
+              <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
+              <span className="truncate">Scheduled</span>
               <span
-                className={`ml-1 px-1.5 py-0.2 rounded-full text-[10px] ${
+                className={`ml-0.5 sm:ml-1 px-1.5 py-0.2 rounded-full text-[10px] ${
                   activeTab === 'scheduled'
                     ? 'bg-indigo-700 text-white'
                     : 'bg-slate-800 text-slate-400'
@@ -145,16 +145,16 @@ export const App: React.FC = () => {
 
             <button
               onClick={() => setActiveTab('sent')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition ${
+              className={`flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs font-semibold transition ${
                 activeTab === 'sent'
                   ? 'bg-indigo-600 text-white shadow-sm'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
               }`}
             >
-              <Send className="w-3.5 h-3.5" />
-              <span>Sent Emails</span>
+              <Send className="w-3.5 h-3.5 flex-shrink-0" />
+              <span className="truncate">Sent</span>
               <span
-                className={`ml-1 px-1.5 py-0.2 rounded-full text-[10px] ${
+                className={`ml-0.5 sm:ml-1 px-1.5 py-0.2 rounded-full text-[10px] ${
                   activeTab === 'sent'
                     ? 'bg-indigo-700 text-white'
                     : 'bg-slate-800 text-slate-400'
@@ -165,7 +165,7 @@ export const App: React.FC = () => {
             </button>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
             <div className="relative flex-1 sm:w-64">
               <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
@@ -177,24 +177,26 @@ export const App: React.FC = () => {
               />
             </div>
 
-            <button
-              onClick={() => {
-                fetchEmails();
-                fetchStats();
-              }}
-              title="Refresh"
-              className="p-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 rounded-xl text-slate-400 hover:text-slate-200 transition"
-            >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  fetchEmails();
+                  fetchStats();
+                }}
+                title="Refresh"
+                className="p-2 bg-slate-900 border border-slate-800 hover:bg-slate-800 rounded-xl text-slate-400 hover:text-slate-200 transition flex-shrink-0"
+              >
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              </button>
 
-            <button
-              onClick={() => setIsComposeOpen(true)}
-              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl shadow-md shadow-indigo-600/20 transition flex items-center gap-1.5 flex-shrink-0"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Compose New Email</span>
-            </button>
+              <button
+                onClick={() => setIsComposeOpen(true)}
+                className="flex-1 sm:flex-initial px-3 sm:px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl shadow-md shadow-indigo-600/20 transition flex items-center justify-center gap-1.5"
+              >
+                <Plus className="w-4 h-4 flex-shrink-0" />
+                <span>Compose Email</span>
+              </button>
+            </div>
           </div>
         </div>
 

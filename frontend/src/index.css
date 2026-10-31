@@ -4,6 +4,13 @@
 
 :root {
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 code, pre {
@@ -25,3 +32,4 @@ code, pre {
 ::-webkit-scrollbar-thumb:hover {
   background: #475569;
 }
+
