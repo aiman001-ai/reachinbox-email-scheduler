@@ -1,6 +1,6 @@
 import React from 'react';
 import { EmailJob } from '../types';
-import { Clock, AlertTriangle, Calendar, Mail } from 'lucide-react';
+import { Clock, AlertTriangle, Calendar, Mail, Loader2 } from 'lucide-react';
 
 interface ScheduledTableProps {
   items: EmailJob[];
@@ -66,6 +66,7 @@ export const ScheduledTable: React.FC<ScheduledTableProps> = ({ items, loading, 
         {items.map((job) => {
           const scheduledDate = new Date(job.scheduledAt);
           const isRateDelayed = job.status === 'DELAYED_RATE_LIMIT';
+          const isProcessing = job.status === 'PROCESSING';
 
           return (
             <div key={job.id} className="p-3.5 sm:p-4 space-y-2 hover:bg-slate-800/20 transition">
@@ -74,7 +75,12 @@ export const ScheduledTable: React.FC<ScheduledTableProps> = ({ items, loading, 
                   <Mail className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
                   <span className="font-semibold text-slate-200 text-xs truncate">{job.recipient}</span>
                 </div>
-                {isRateDelayed ? (
+                {isProcessing ? (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/30 flex-shrink-0 animate-pulse">
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    Sending...
+                  </span>
+                ) : isRateDelayed ? (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/30 flex-shrink-0">
                     <AlertTriangle className="w-3 h-3" />
                     Rate Limited
@@ -122,6 +128,7 @@ export const ScheduledTable: React.FC<ScheduledTableProps> = ({ items, loading, 
             {items.map((job) => {
               const scheduledDate = new Date(job.scheduledAt);
               const isRateDelayed = job.status === 'DELAYED_RATE_LIMIT';
+              const isProcessing = job.status === 'PROCESSING';
 
               return (
                 <tr key={job.id} className="hover:bg-slate-800/30 transition">
@@ -140,7 +147,12 @@ export const ScheduledTable: React.FC<ScheduledTableProps> = ({ items, loading, 
                     {scheduledDate.toLocaleDateString()} {scheduledDate.toLocaleTimeString()}
                   </td>
                   <td className="py-3 px-4">
-                    {isRateDelayed ? (
+                    {isProcessing ? (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/30 animate-pulse">
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        Sending...
+                      </span>
+                    ) : isRateDelayed ? (
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/30">
                         <AlertTriangle className="w-3 h-3" />
                         Rate Limit Delayed

@@ -184,4 +184,87 @@ export class EmailController {
       res.status(500).json({ error: (error as Error).message });
     }
   }
+
+  public static async previewEmail(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const job = await prisma.emailJob.findUnique({
+        where: { id },
+      });
+
+      if (!job) {
+        res.status(404).send(`
+          <!DOCTYPE html>
+          <html>
+            <head><title>Email Not Found</title></head>
+            <body style="font-family: system-ui, sans-serif; background: #0b0f17; color: #fff; padding: 40px; text-align: center;">
+              <h2>Email record not found</h2>
+              <p style="color: #94a3b8;">Job ID: ${id}</p>
+            </body>
+          </html>
+        `);
+        return;
+      }
+
+      const escapeHtml = (text: string) =>
+        text
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+
+      const formattedDate = job.sentAt
+        ? new Date(job.sentAt).toLocaleString()
+        : new Date(job.scheduledAt).toLocaleString();
+
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.send(`
+        <!DOCTYPE html>
+        <html lang="en">
+          <head>
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>ReachInbox Email Preview - ${escapeHtml(job.subject)}</title>
+            <style>
+              body { margin: 0; padding: 24px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #0b0f17; color: #e2e8f0; }
+              .container { max-width: 680px; margin: 0 auto; background: #131b2e; border: 1px solid #1e293b; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); }
+              .header { background: #1e293b; padding: 18px 24px; border-bottom: 1px solid #334155; display: flex; align-items: center; justify-content: space-between; }
+              .brand { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #818cf8; }
+              .badge { display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; background: ${job.status === 'SENT' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(99, 102, 241, 0.15)'}; color: ${job.status === 'SENT' ? '#34d399' : '#818cf8'}; border: 1px solid ${job.status === 'SENT' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(99, 102, 241, 0.3)'}; }
+              .meta { padding: 20px 24px; background: #0f172a; border-bottom: 1px solid #1e293b; font-size: 13px; line-height: 1.8; color: #94a3b8; }
+              .meta strong { color: #f1f5f9; display: inline-block; width: 80px; }
+              .body { padding: 32px 24px; font-size: 15px; line-height: 1.7; background: #ffffff; color: #1e293b; min-height: 200px; }
+              .footer { padding: 16px 24px; background: #0f172a; border-top: 1px solid #1e293b; font-size: 12px; color: #64748b; text-align: center; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="header">
+                <div class="brand">
+                  <span>ReachInbox Email Preview</span>
+                </div>
+                <span class="badge">${job.status}</span>
+              </div>
+              <div class="meta">
+                <div><strong>Subject:</strong> <span style="color: #f8fafc; font-weight: 600;">${escapeHtml(job.subject)}</span></div>
+                <div><strong>From:</strong> &lt;${escapeHtml(job.sender)}&gt;</div>
+                <div><strong>To:</strong> &lt;${escapeHtml(job.recipient)}&gt;</div>
+                <div><strong>Date:</strong> ${formattedDate}</div>
+                <div><strong>Job ID:</strong> <span style="font-family: monospace; font-size: 11px;">${job.id}</span></div>
+              </div>
+              <div class="body">
+                ${escapeHtml(job.body).replace(/\n/g, '<br/>')}
+              </div>
+              <div class="footer">
+                Delivered via ReachInbox Automated Job Scheduler &bull; Simulated ESP Dispatch
+              </div>
+            </div>
+          </body>
+        </html>
+      `);
+    } catch (error) {
+      res.status(500).send('Error rendering preview: ' + (error as Error).message);
+    }
+  }
 }

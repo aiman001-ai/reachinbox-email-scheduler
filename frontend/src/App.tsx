@@ -56,7 +56,7 @@ export const App: React.FC = () => {
       if (searchQuery.trim().length > 0) {
         const searchRes = await api.searchEmails(searchQuery.trim(), undefined, user?.id);
         const scheduled = searchRes.results.filter(
-          (r) => r.status === 'SCHEDULED' || r.status === 'DELAYED_RATE_LIMIT'
+          (r) => r.status === 'SCHEDULED' || r.status === 'DELAYED_RATE_LIMIT' || r.status === 'PROCESSING'
         );
         const sent = searchRes.results.filter(
           (r) => r.status === 'SENT' || r.status === 'FAILED'

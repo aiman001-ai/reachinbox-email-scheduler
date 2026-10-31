@@ -35,6 +35,16 @@ export class RateLimitService {
     const nextWindowStart = this.getNextHourWindowStart(now);
     const retryAfterMs = Math.max(1000, nextWindowStart.getTime() - now.getTime());
 
+    if (redisConnection.status !== 'ready') {
+      return {
+        allowed: true,
+        currentCount: 0,
+        limit: hourlyLimit,
+        nextWindowStart,
+        retryAfterMs: 0,
+      };
+    }
+
     const currentCountStr = await redisConnection.get(key);
     const currentCount = currentCountStr ? parseInt(currentCountStr, 10) : 0;
 
@@ -72,6 +82,8 @@ export class RateLimitService {
     nextWindowStart: Date,
     userId?: string
   ): Promise<void> {
+    if (redisConnection.status !== 'ready') return;
+
     const now = new Date();
     const alertKey = `alert_sent:${sender}:${this.getHourWindowKey(sender, now)}`;
 
@@ -89,6 +101,7 @@ export class RateLimitService {
   }
 
   public static async getSenderHourlyUsage(sender: string): Promise<number> {
+    if (redisConnection.status !== 'ready') return 0;
     const key = this.getHourWindowKey(sender);
     const val = await redisConnection.get(key);
     return val ? parseInt(val, 10) : 0;

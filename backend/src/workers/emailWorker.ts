@@ -63,6 +63,7 @@ export const createEmailWorker = () => {
 
       try {
         const sendResult = await SmtpService.sendMail({
+          jobRecordId,
           sender,
           recipient,
           subject,
@@ -83,8 +84,7 @@ export const createEmailWorker = () => {
 
         console.log(`[Worker] Sent email to ${recipient}. Preview URL: ${sendResult.previewUrl || 'N/A'}`);
 
-        const throttleMs = Math.max(1000, (delayBetweenSeconds || config.worker.minDelaySeconds) * 1000);
-        await sleep(throttleMs);
+        await sleep(100);
 
         return {
           success: true,

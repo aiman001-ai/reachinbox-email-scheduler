@@ -154,7 +154,7 @@ export class EmailService {
     const skip = (page - 1) * limit;
 
     const where: any = {
-      status: { in: ['SCHEDULED', 'DELAYED_RATE_LIMIT'] },
+      status: { in: ['SCHEDULED', 'DELAYED_RATE_LIMIT', 'PROCESSING'] },
     };
 
     const scheduledAndClauses: any[] = [];
@@ -272,6 +272,7 @@ export class EmailService {
       });
 
       const sendResult = await SmtpService.sendMail({
+        jobRecordId: record.id,
         sender: record.sender,
         recipient: record.recipient,
         subject: record.subject,
@@ -311,10 +312,17 @@ export class EmailService {
       },
     });
 
+    const now = Date.now();
+
     if (redisConnection.status !== 'ready') {
       console.log(`[Reconciler] Redis is offline. Initializing direct timers for ${pendingEmails.length} pending jobs.`);
-      const now = Date.now();
       for (const email of pendingEmails) {
+        if (email.status === 'PROCESSING') {
+          await prisma.emailJob.update({
+            where: { id: email.id },
+            data: { status: 'SCHEDULED' },
+          });
+        }
         const delayMs = Math.max(0, email.scheduledAt.getTime() - now);
         setTimeout(() => {
           EmailService.processDirectSend(email.id).catch(() => {});
@@ -324,7 +332,6 @@ export class EmailService {
     }
 
     let reEnqueuedCount = 0;
-    const now = Date.now();
 
     for (const email of pendingEmails) {
       try {
